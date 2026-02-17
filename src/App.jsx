@@ -2,72 +2,57 @@ import { useState } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const initialArticles = [
-  {
-    title: "Kyoto, Giappone",
-    description:
-      "Antica capitale giapponese famosa per i templi, i ciliegi in fiore e le tradizioni millenarie.",
-  },
-  {
-    title: "Santorini, Grecia",
-    description:
-      "Isola iconica con case bianche e cupole blu, tramonti spettacolari e mare cristallino.",
-  },
-  {
-    title: "Machu Picchu, Perù",
-    description:
-      "Antica città Inca immersa tra le montagne andine, uno dei siti archeologici più affascinanti al mondo.",
-  },
-  {
-    title: "New York, Stati Uniti",
-    description:
-      "La città che non dorme mai, tra grattacieli, Central Park e un’energia unica.",
-  },
+  "Kyoto, Giappone",
+  "Santorini, Grecia",
+  "Machu Picchu, Perù",
+  "New York, Stati Uniti",
 ];
 
 export default function App() {
   //* Articles Iniziale
   const [articles, setArticles] = useState(initialArticles);
 
-  //* useState New Article Title
-  const [newTitleArticle, setNewTitleArticle] = useState("");
+  //* useState New Article
+  const [newArticle, setNewArticle] = useState("");
 
-  //* useState New Article Description
-  const [newDescArticle, setNewDescArticle] = useState("");
+  //* useState Modify Article
+  const [editArticleIndex, setEditArticleIndex] = useState();
 
-  //* useState New Title Modified
-  const [modifiedTitle, setModifiedTitle] = useState("Titolo Modificato");
+  //* Input Edit Article
+  const [inputEditArticle, setInputEditArticle] = useState("");
+
+  //* Article Corresponding to Index
+  const editArticle = articles[editArticleIndex];
 
   /* Event Handle */
   //* Form Submit
-  const handleFormSubmit = (e) => {
+  const handleNewArticleFormSubmit = (e) => {
     e.preventDefault();
 
-    if (!newTitleArticle || !newDescArticle) return;
+    if (!newArticle) return;
 
-    setArticles([
-      ...articles,
-      { title: newTitleArticle, description: newDescArticle },
-    ]);
-
-    setNewTitleArticle("");
-    setNewDescArticle("");
+    setArticles([...articles, newArticle]);
+    setNewArticle("");
   };
 
-  // New Article Title and Description Input Change
-  const handleNewTitleArticle = (e) => {
-    setNewTitleArticle(e.target.value);
+  const handleEditArticleFormSubmit = (e) => {
+    e.preventDefault();
+
+    const updateArticles = articles.map((article, index) =>
+      index === editArticleIndex ? inputEditArticle : article,
+    );
+    setArticles(updateArticles);
+    setEditArticleIndex(null);
   };
 
-  const handleNewDescArticle = (e) => {
-    setNewDescArticle(e.target.value);
+  /* MODIFY ARTICLE */
+  const editSelectedArticle = (indexEdit) => {
+    setEditArticleIndex(indexEdit);
+    setInputEditArticle(articles[indexEdit]);
   };
 
-  const handleModifyArticleBtn = (indexModify) => {
-    console.log(indexModify);
-    console.table(articles);
-  };
-
-  const handleDeleteArticleBtn = (indexDelete) => {
+  /* DELETE ARTICLE */
+  const deleteArticleBtn = (indexDelete) => {
     setArticles(articles.filter((article, index) => index !== indexDelete));
   };
 
@@ -85,7 +70,7 @@ export default function App() {
                 className="list-group-item d-flex justify-content-between align-items-center"
                 key={index}
               >
-                {article.title}
+                {article}
 
                 <div
                   className="btn-group"
@@ -94,16 +79,16 @@ export default function App() {
                 >
                   {/* Modify Button */}
                   <button
-                    onClick={() => handleModifyArticleBtn(index)}
-                    className="btn btn-primary"
+                    onClick={() => editSelectedArticle(index)}
+                    className="btn btn-warning"
                   >
                     <i className="bi bi-pencil"></i>
                   </button>
 
                   {/* Delete Button */}
                   <button
-                    onClick={() => handleDeleteArticleBtn(index)}
-                    className="btn btn-primary"
+                    onClick={() => deleteArticleBtn(index)}
+                    className="btn btn-danger"
                   >
                     <i className="bi bi-trash3"></i>
                   </button>
@@ -114,35 +99,26 @@ export default function App() {
         </div>
       </div>
 
-      {/* INPUT FORM */}
+      {/* ADD FORM */}
       <div className="container text-center">
         <div className="card">
           <div className="card-header">
             <h1>Aggiungi Articoli</h1>
           </div>
-          <form onSubmit={handleFormSubmit} className="mx-5 my-4">
+          <form onSubmit={handleNewArticleFormSubmit} className="mx-5 my-4">
             <div className="d-flex flex-column justify-content-center gap-1">
               <div className="input-group mb-3">
                 <span className="input-group-text" id="title-new-article">
                   Titolo
                 </span>
                 <input
-                  value={newTitleArticle}
-                  onChange={handleNewTitleArticle}
+                  value={newArticle}
+                  onChange={(e) => setNewArticle(e.target.value)}
                   type="text"
                   className="form-control"
                   aria-label="Titolo"
                   aria-describedby="title-new-article"
                 />
-              </div>
-              <div className="input-group">
-                <span className="input-group-text">Descrizione</span>
-                <textarea
-                  value={newDescArticle}
-                  onChange={handleNewDescArticle}
-                  className="form-control"
-                  aria-label="Descrizione"
-                ></textarea>
               </div>
             </div>
             <div className="d-grid gap-2 col-6 mx-auto mt-4">
@@ -151,6 +127,37 @@ export default function App() {
           </form>
         </div>
       </div>
+
+      {/* MODIFY FORM */}
+      {editArticleIndex && (
+        <div className="container text-center my-4">
+          <div className="card">
+            <div className="card-header">
+              <h1>Modifica {editArticle}</h1>
+            </div>
+            <form onSubmit={handleEditArticleFormSubmit} className="mx-5 my-4">
+              <div className="d-flex flex-column justify-content-center gap-1">
+                <div className="input-group mb-3">
+                  <span className="input-group-text" id="title-new-article">
+                    Titolo
+                  </span>
+                  <input
+                    value={inputEditArticle}
+                    onChange={(e) => setInputEditArticle(e.target.value)}
+                    type="text"
+                    className="form-control"
+                    aria-label="Titolo"
+                    aria-describedby="title-new-article"
+                  />
+                </div>
+              </div>
+              <div className="d-grid gap-2 col-6 mx-auto mt-4">
+                <button className="btn btn-primary">Modifica!</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
